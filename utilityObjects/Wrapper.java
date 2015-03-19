@@ -13,7 +13,6 @@ package utilityObjects;
  * portion of the game much simpler, by providing a single point
  * of interaction between the GUI and the gameLogic.
  * @author Ian
- *
  */
 public interface Wrapper {
 	

@@ -15,4 +15,5 @@ package utilityObjects;
 public interface Game {
 	
 	public GameState action(Action action);
+	public GameState getCurrentState();
 }
