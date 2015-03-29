@@ -1,6 +1,7 @@
 package databaseConnections;
 
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 
@@ -10,12 +11,20 @@ public class DriverTest {
 	
 	public static void main(String[] args)
 	{
-		DatabaseConnector.createProfile("ian");
-		DatabaseConnector.createProfile("dilbert");
-		LinkedList<String> profiles = DatabaseConnector.getProfiles();
-		for(String name: profiles)
+		
+		ArrayList<Integer> scores = DatabaseConnector.getScores("Ian");
+		for(Integer num:scores)
 		{
-			System.out.println(name);
+			System.out.println(num.intValue());
+		}
+		
+		DatabaseConnector.updatePlayerProfile("Ian", 5,7,8);
+		
+		
+		scores = DatabaseConnector.getScores("Ian");
+		for(Integer num:scores)
+		{
+			System.out.println(num.intValue());
 		}
 	}
 	

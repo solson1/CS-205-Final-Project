@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 
@@ -44,6 +45,14 @@ public class DatabaseConnector {
 	public static final String UPDATE_PROFILE_INCREMENT_GAMESPLAYED_FIRST = "UPDATE profiles SET games_played = game_played + 1 "
 																			+ " WHERE name = '";
 	public static final String UPDATE_PROFILE_INCREMENT_GAMESPLAYED_LAST =  "';";
+	
+	public static final String GET_SCORES_FIRST = "SELECT games_played, rounds_won, rounds_lost FROM profiles WHERE name = '";
+	public static final String GET_SCORES_LAST = "';";
+	public static final String GAMES_PLAYED_IDENT = "games_played";
+	public static final String ROUNDS_WON_IDENT = "rounds_won";
+	public static final String ROUNDS_LOST_IDENT = "rounds_lost";
+	
+	
 	
 	/**
 	 * initializeDatabase sets up a connection to MySQL, and creates a database for the game if none exists 
@@ -116,6 +125,16 @@ public class DatabaseConnector {
 	}
 	
 	/**
+	 * INCOMPLETE METHOD STUB. LoadGame functionality to be filled when GameObject completed. 
+	 * @param playerName
+	 * @param gameName
+	 */
+	public static void loadGame(String playerName, String gameName)
+	{
+		//TODO: Fill in method with code to return all data required to describe game value to calling object.
+	}
+	
+	/**
 	 * getSavedGames returns a linkedList of the saved games for a particular player specified by the input 
 	 * argument playerName.
 	 * @param playerName
@@ -126,6 +145,71 @@ public class DatabaseConnector {
 		String query = GET_SAVED_GAMES_FIRST + playerName + GET_SAVED_GAMES_LAST;
 		
 		return stringListReturningQuery(query, SAVE_NAME_IDENTIFIER);
+	}
+	
+	/** the getScores method queries the profiles table in the database and returns an int array describing the scores of the player.
+	 * 
+	 */
+	public static ArrayList<Integer> getScores(String playerName)
+	{
+		//declare variables in order to close them within the finally block;
+		ArrayList<Integer> scores = new ArrayList<Integer>();
+		Statement statement = null;
+		ResultSet results = null;
+		try
+		{
+			Connection connection = createConnection(URL, USER, PASSWORD, DRIVER_CLASS);
+			
+			statement = connection.createStatement();
+			String query = GET_SCORES_FIRST + playerName + GET_SCORES_LAST;
+			
+			statement.execute(query);
+			results = statement.getResultSet();
+			
+			while(results.next())
+			{
+				scores.add(new Integer(results.getInt(GAMES_PLAYED_IDENT)));
+				scores.add(new Integer(results.getInt(ROUNDS_WON_IDENT)));
+				scores.add(new Integer(results.getInt(ROUNDS_LOST_IDENT)));
+			}
+			
+		}
+		catch(Exception e) //handle all errors
+		{
+			System.out.println(e.getMessage());
+		}
+		finally //close all resources, including the result set and connection
+		{
+			closeResources(statement, results);
+			statement = null;
+			results = null;
+		}
+		return scores;
+	}
+	
+	
+	//Strings below pertain to update Player Profile method
+	public final static String UPDATE_PROFILE_ONE = "update profiles set games_played = games_played + ";
+	public final static String UPDATE_PROFILE_TWO = ", rounds_won = rounds_won + ";
+	public final static String UPDATE_PROFILE_THREE = ", rounds_lost = rounds_lost + ";
+	public final static String UPDATE_PROFILE_FOUR = " where name = '";
+	public final static String UPDATE_PROFILE_FIVE = "';";
+	
+	/**
+	 * updatePlayerProfile allows manipulation of the statistics contained in the player profiles table in the database.
+	 * The playerName is sepcified by a string, and the integer arguements are applied to the profile in questions.
+	 * For example, updatePlayerProfile("ian", 1, 2, 3) would add 1 to the games_played field, 2 to the rounds_won field, 
+	 * and 3 to the rounds_lost field.
+	 * @param playerName
+	 * @param gamesWon
+	 * @param roundsWon
+	 * @param roundsLost
+	 */
+	public static void updatePlayerProfile(String playerName, int gamesPlayed, int roundsWon, int roundsLost)
+	{
+		String query = UPDATE_PROFILE_ONE + Integer.toString(gamesPlayed) + UPDATE_PROFILE_TWO + Integer.toString(roundsWon) + 
+				UPDATE_PROFILE_THREE + Integer.toString(roundsLost) + UPDATE_PROFILE_FOUR + playerName + UPDATE_PROFILE_FIVE;
+		executeNonReturningQuery(query);
 	}
 	
 	/**
@@ -167,12 +251,11 @@ public class DatabaseConnector {
 	}
 	
 	
+	
 	private static void executeNonReturningQuery(String query)
 	{
 		Statement statement = null;
 		ResultSet results = null;
-		//SuccessOrFail is a boolean describing if the queries have executed without errors.
-		boolean successOrFail = false;
 		//Enclosed within try block
 		try
 		{
