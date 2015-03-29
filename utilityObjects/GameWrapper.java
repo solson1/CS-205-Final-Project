@@ -1,17 +1,105 @@
 package utilityObjects;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+
+import databaseConnections.DatabaseConnector;
 
 public class GameWrapper implements Wrapper {
 	
 	private LinkedList<AIDummy> aiPlayerList;
 	private GameType type;
 	private Game game;
+	private String playerID;
 	
 	public GameWrapper()
 	{
-		//Database connections go here
+		//Initialize default values
+		this.playerID = "DefaultPlayer";
+		//Perform the database initialization step, encased in a try/catch block
+		
+		
 	}
+	//--------------------------------------------------------------------
+	//DATABASE METHODS----------------------------------------------------
+	//--------------------------------------------------------------------
+	/**
+	 * the login method queries the database to see if a given profile name currently
+	 * exists, creates an entry in the profiles table if it does not exist, and 
+	 * sets the current session's player name to the playerName argument. 
+	 * @param playerName
+	 */
+	public void login(String playerName)
+	{
+		LinkedList<String> existingProfiles = DatabaseConnector.getProfiles();
+		
+		boolean found = false;
+		for(String profile:existingProfiles)
+		{
+			if(profile.equalsIgnoreCase(playerName))
+			{
+				found = true;
+			}
+		}
+		if(found == false)
+			DatabaseConnector.createProfile(playerName);
+			
+		this.playerID = playerName;
+	}
+	
+	public LinkedList<String> getProfiles()
+	{
+		return DatabaseConnector.getProfiles();
+	}
+	
+	public void createProfile(String playerName)
+	{
+		DatabaseConnector.createProfile(playerName);
+		this.playerID = playerName;
+	}
+	
+	public LinkedList<String> getSavedGames(String playerName)
+	{
+		return DatabaseConnector.getSavedGames(playerName);
+	}
+	
+	public ArrayList<Integer> getScores(String playerName)
+	{
+		return DatabaseConnector.getScores(playerName);
+	}
+	
+	/**
+	 * LoadGame is currently a non-functional stub due to missing gameobject
+	 * Method has no return.
+	 * @param playerName
+	 * @param gameName
+	 */
+	public void loadGame(String playerName, String gameName)
+	{
+		DatabaseConnector.loadGame(playerName, gameName);
+	}
+	
+	/**
+	 * SaveGame is currently a non-functional due to missing gameObject class.
+	 * Currently, method inserts a new row containing the playername and the 
+	 * save game name into the savedGames table, while inserting no actual game data.
+	 * @param playerName
+	 * @param gameName
+	 */
+	public void saveGame(String playerName, String gameName)
+	{
+		DatabaseConnector.saveGame(playerName, gameName);
+	}
+	
+	public void updatePlayerProfile(String playerName, int gamesPlayed, int roundsWon, int roundsLost)
+	{
+		DatabaseConnector.updatePlayerProfile(playerName, gamesPlayed, roundsWon, roundsLost);
+	}	
+	//--------------------------------------------------------------------
+	//END DATABASE METHODS----------------------------------------------------
+	//--------------------------------------------------------------------
+	
+	
 	
 	/**
 	 * StartNewGame accepts an integer arguement describing the number of players in the game, as well as a GameType value describing the type.
