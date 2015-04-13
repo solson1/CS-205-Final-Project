@@ -5,6 +5,7 @@
  */
 package utilityObjects;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 
 /**
@@ -15,12 +16,12 @@ import java.util.LinkedList;
  *
  */
 public class GameState {
-	private LinkedList<LinkedList<CardName>> playerHands;
+	private HashMap<String, CardName[]> playerHands;
 	private int roundScore;
 	private int gameScore;
 	private CardName faceUpDiscard;
 	
-	public GameState(LinkedList<LinkedList<CardName>> playerHands, int roundScore, int gameScore, CardName faceUpDiscard)
+	public GameState(HashMap<String, CardName[]> playerHands, int roundScore, int gameScore, CardName faceUpDiscard)
 	{
 		this.playerHands = playerHands;
 		this.roundScore = roundScore;
@@ -28,7 +29,7 @@ public class GameState {
 		this.faceUpDiscard = faceUpDiscard;
 	}
 
-	public LinkedList<LinkedList<CardName>> getPlayerHands() {
+	public HashMap<String, CardName[]> getPlayerHands() {
 		return playerHands;
 	}
 
