@@ -13,54 +13,59 @@ public class GameObjectTest extends TestCase{
 	public void testConstruction()
 	{
 		GameObject game = new GameObject(GameType.ROUNDS, "Steve", "Bill", "Fred");
-		
-		System.out.println("woops");
 	}
 	
-	/**
-	 * testSimpleSwap performs a simple swap operation within one player's hand, and queries the current gamestate 
-	 * to ensure that the operation has been performed and is reflected in the current state. 
-	 */
 	@Test
-	public void testSimpleSwap()
-	{
-		GameObject game = new GameObject(GameType.ROUNDS, "Steve", "Bill", "Fred");
-		
-		Action action = new Action(ActionName.DRAW, PileName.ONE, PileName.ONE, "Steve", "Steve", CardName.NINE);
-		
-		GameState state = game.action(action);
-		
-		CardName[] steveHand = state.getPlayerHands().get("Steve");
-		
-		assertTrue("expected Player's hand to contain NINE", steveHand[0] == CardName.NINE );
-		
-	}
-	
-	/**
-	 * Test the assignment to the discard pile of the current contents of the target "pile" within a player's hand.
-	 */
-	public void testAutomaticAssignmentToDiscardPile()
+	public void testDrawFromDeckAction()
 	{
 		//Generate a new Game
 		GameObject game = new GameObject(GameType.ROUNDS, "Steve", "Bill", "Fred");
-		//Get the current state of the game, and obtain the contents of "steve"'s hand at position one, 
+		//Get the current state of the game, and obtain the contents of "Steve"'s hand at position one, 
 		GameState originalState = game.generateCurrentGameState();
 		
-		//Obtain a copy of steve's hand, and get the first (zeroth) card in the hand.
-		CardName[] steveHand = originalState.getPlayerHands().get("Steve");	
-		CardName compareThisLater = steveHand[0];
+		//get the current top of the deck.
+		CardName topOfDeck = originalState.getTopOfDeck();
 		
-		//perform some swap operation on steve's hand
-		Action action = new Action(ActionName.DRAW, PileName.ONE, PileName.ONE, "Steve", "Steve", CardName.TWO);
-		//and obtain the current state,
-		GameState state = game.action(action);
 	
-		//Get the current top of the discard pile
-		CardName topOfDiscard = state.getFaceUpDiscard();
+		CardName[] originalSteveHand = originalState.getPlayerHands().get("Steve");
 		
-		//and assert that that value == the compareThisLaterValue
-		assertTrue("Unexpected Value found on top of discard pile following simple one "
-				+ "player swap operation", compareThisLater == topOfDiscard); 
+		//create an action object representing that "Steve" wants to draw a card and place it in position 
+		//"Four" in his hand
+		Action action = new Action(ActionName.DRAW, PileName.DECK, PileName.THREE, "Steve", "Steve",null);
+		
+		//perform the action and store the resulting gamestate
+		GameState updatedGameState = game.action(action);
+		
+		//get the card at position THREE in steve's hand, and assert that it == the original top of the deck.
+		CardName[] steveHand = updatedGameState.getPlayerHands().get("Steve");
+		CardName cardAtPositionTHREE = steveHand[3];
+		
+		assertTrue("Unexpected card found in player's hand while attempting draw operation from deck.", cardAtPositionTHREE == topOfDeck);		
+	}
+	
+	@Test
+	public void testDrawFromDiscardAction()
+	{
+		//generate a new game object
+		//execute the draw method from the deck, in order to ensure there is something on the discard pile
+		GameObject game = new GameObject(GameType.ROUNDS, "Steve", "Bill", "Fred");
+		Action action = new Action(ActionName.DRAW, PileName.DECK, PileName.THREE, "Steve", "Steve",null);
+		
+		//perform the action and store the resulting gamestate
+		GameState originalGameState = game.action(action);
+		
+		CardName topOfDiscard = originalGameState.getFaceUpDiscard();
+			
+		//Now execute another action drawing from the discard pile and putting that card in position three in 
+		//Bill's hand
+		Action nextAction = new Action(ActionName.DRAW, PileName.DISCARD, PileName.THREE, "Bill", "Bill",null);
+		GameState updatedGameState = game.action(nextAction);
+		
+		//get the card at position three in bills hand and assert that it equals the top of discard variable.
+		CardName[] billhand = updatedGameState.getPlayerHands().get("Bill");
+		CardName cardToTest = billhand[3];
+		
+		assertTrue("Unexpected card found in player's hand while attempting draw operation from deck.", cardToTest ==topOfDiscard);
 	}
 	
 	

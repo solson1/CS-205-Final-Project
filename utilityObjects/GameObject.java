@@ -49,16 +49,56 @@ public class GameObject {
 	 */
 	public GameState action(Action action)
 	{
-		//Cases to Handle: 
-		//1.) We're performing an operation on a player's 'own' hand.
-		//		ie, drawing from a pile and swapping within his own hand.
-		if(action.getSourcePlayerName().equalsIgnoreCase(action.getTargetPlayerName()))
+		
+		switch(action.getActionName())
 		{
-			this.updatePlayerHand(action.getSourcePlayerName(), action.getTargetPileName(), action.getCardName());
+		case DRAW:
+			this.draw(action);
+			break;
+		case SWAP:
+			break;
+		case PEEK:
+			break;
 		}
+		
 	
 		//generate a GameState Object to return.
 		return this.generateCurrentGameState();
+	}
+
+	/**
+	 * draw handles the draw action, accepting the action object containing all the infromation required to perform 
+	 * the draw operation. 
+	 * @param action
+	 */
+	private void draw(Action action)
+	{
+		//Get the source pile.
+		PileName source = action.getSourcePileName();
+		//switch on the source name. There are only two possible sources in a draw operation, the deck and discard piles
+		//will need to add additional handling for powercards
+		CardName newCard;
+		switch(source)
+		{
+		case DECK:
+			newCard = this.deck.pop();
+			this.updatePlayerHand(action.getTargetPlayerName(), action.getTargetPileName(), newCard);
+			break;
+		case DISCARD:
+			try
+			{
+				newCard = this.discard.pop();
+				this.updatePlayerHand(action.getTargetPlayerName(), action.getTargetPileName(), newCard);	
+			}
+			catch(EmptyStackException e)
+			{
+				//Ignore, if top of discard is null, then we will have failed to perform an action.
+			}
+			break;
+		default:
+			//Do nothing, because we would never "draw" from anywhere other than the deck or the discard pile. 
+			break;
+		}
 	}
 	
 	/**
@@ -70,22 +110,23 @@ public class GameObject {
 	{
 		//Default to returning zeros for the current scores
 		int defaultScore = 0;
-		
 		HashMap<String, CardName[]> handsCopy = this.deepCopyPlayerHands();
 		
+		//get the top of the discard pile, handling the case with the discard pile is empty.
 		CardName topOfDiscard = null;
-		
 		try
 		{
-			topOfDiscard = this.discard.pop();
+			topOfDiscard = this.discard.peek();
 		}
 		catch(EmptyStackException e)
 		{
 			//Ignore, topOfDiscard will be null;
 		}
+		//Get the top of the deck
+		CardName topOfDeck = this.deck.peek();
 		
 		//create deep copy functionality for the player hands array and the hashmap of player names to hands
-		return new GameState(handsCopy, defaultScore, defaultScore, topOfDiscard); 
+		return new GameState(handsCopy, defaultScore, defaultScore, topOfDiscard, topOfDeck); 
 	}
 	
 	private HashMap<String, CardName[]> deepCopyPlayerHands()
@@ -114,24 +155,24 @@ public class GameObject {
 	 * @param pile describes which pile in the specified player's hand the card is being pushed to
 	 * @param inputCard specifies the input card.
 	 */
-	private void updatePlayerHand(String targetPlayerName, PileName pile, CardName inputCard)
+	private void updatePlayerHand(String targetPlayerName, PileName targetPileName, CardName inputCard)
 	{
 		//Get the pertinent player's hand
 		CardName[] hand = this.playerHands.get(targetPlayerName);
 		//Switch on the specified pileName, executing the updateDiscardAndHand method for the 
-		//appropriate indexd
-		switch(pile)
+		//appropriate index
+		switch(targetPileName)
 		{
-		case ONE:
+		case ZERO:
 			updateDiscardAndHand(hand, 0, inputCard);
 			break;
-		case TWO:
+		case ONE:
 			updateDiscardAndHand(hand, 1, inputCard);
 			break;
-		case THREE:
+		case TWO:
 			updateDiscardAndHand(hand, 2, inputCard);
 			break;
-		case FOUR:
+		case THREE:
 			updateDiscardAndHand(hand, 3, inputCard);
 			break;
 		case DECK:
@@ -155,7 +196,6 @@ public class GameObject {
 	private void updateDiscardAndHand(CardName[] hand, int index, CardName inputCard)
 	{
 		this.discard.push(hand[index]);
-		
 		hand[index] = inputCard;
 	}
 	

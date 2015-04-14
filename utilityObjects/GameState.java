@@ -20,31 +20,54 @@ public class GameState {
 	private int roundScore;
 	private int gameScore;
 	private CardName faceUpDiscard;
+	private CardName topOfDeck;
 	
-	public GameState(HashMap<String, CardName[]> playerHands, int roundScore, int gameScore, CardName faceUpDiscard)
+	public GameState(HashMap<String, CardName[]> playerHands, int roundScore, int gameScore, CardName faceUpDiscard, CardName topOfDeck)
 	{
 		this.playerHands = playerHands;
 		this.roundScore = roundScore;
 		this.gameScore = gameScore;
 		this.faceUpDiscard = faceUpDiscard;
+		this.topOfDeck = topOfDeck;
 	}
 
+	/**
+	 * @return the playerHands
+	 */
 	public HashMap<String, CardName[]> getPlayerHands() {
 		return playerHands;
 	}
 
+	/**
+	 * @return the roundScore
+	 */
 	public int getRoundScore() {
 		return roundScore;
 	}
 
+	/**
+	 * @return the gameScore
+	 */
 	public int getGameScore() {
 		return gameScore;
 	}
 
+	/**
+	 * @return the faceUpDiscard
+	 */
 	public CardName getFaceUpDiscard() {
 		return faceUpDiscard;
 	}
+
+	/**
+	 * @return the topOfDeck
+	 */
+	public CardName getTopOfDeck() {
+		return topOfDeck;
+	}
+
 	
+
 	
 	
 }
