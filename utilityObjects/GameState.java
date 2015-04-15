@@ -17,16 +17,14 @@ import java.util.LinkedList;
  */
 public class GameState {
 	private HashMap<String, CardName[]> playerHands;
-	private int roundScore;
-	private int gameScore;
+	private HashMap<String, Integer> roundScores;
 	private CardName faceUpDiscard;
 	private CardName topOfDeck;
 	
-	public GameState(HashMap<String, CardName[]> playerHands, int roundScore, int gameScore, CardName faceUpDiscard, CardName topOfDeck)
+	public GameState(HashMap<String, CardName[]> playerHands, HashMap<String, Integer> roundScores, CardName faceUpDiscard, CardName topOfDeck)
 	{
 		this.playerHands = playerHands;
-		this.roundScore = roundScore;
-		this.gameScore = gameScore;
+		this.roundScores = roundScores;
 		this.faceUpDiscard = faceUpDiscard;
 		this.topOfDeck = topOfDeck;
 	}
@@ -41,15 +39,8 @@ public class GameState {
 	/**
 	 * @return the roundScore
 	 */
-	public int getRoundScore() {
-		return roundScore;
-	}
-
-	/**
-	 * @return the gameScore
-	 */
-	public int getGameScore() {
-		return gameScore;
+	public HashMap<String, Integer> getRoundScores() {
+		return roundScores;
 	}
 
 	/**

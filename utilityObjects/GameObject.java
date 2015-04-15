@@ -22,13 +22,13 @@ public class GameObject {
 	private Stack<CardName> discard;
 	private GameType type;
 	private String[] playerNames;
-	private HashMap<String, CardName[]> playerHands;
+	private HashMap<String, PlayerHand> playerHands;
 	
 	public GameObject(GameType inType, String... players)
 	{
 		this.type = inType;
 		this.playerNames = players;
-		this.playerHands = new HashMap<String, CardName[]>(); 
+		this.playerHands = new HashMap<String, PlayerHand>(); 
 		this.deck = this.generateShuffledDeck();
 		this.discard = new Stack<CardName>();
 		
@@ -56,14 +56,33 @@ public class GameObject {
 			this.draw(action);
 			break;
 		case SWAP:
+			this.swap(action);
 			break;
-		case PEEK:
+		case ENDROUND:
 			break;
 		}
-		
-	
 		//generate a GameState Object to return.
 		return this.generateCurrentGameState();
+	}
+	/**
+	 * The swap method performs the swap operation specified by the action object on the game object
+	 * @param action
+	 */
+	private void swap(Action action)
+	{
+		//get the source and target playerNames and pileNames
+		String sourcePlayer = action.getSourcePlayerName();
+		String targetPlayer = action.getTargetPlayerName();
+		PileName sourcePile = action.getSourcePileName();
+		PileName targetPile = action.getTargetPileName();
+		
+		//insert the card from the source into the target, and store the output
+		CardName sourceCard = this.playerHands.get(sourcePlayer).getCardAtIndex(PileName.getIntegerValue(sourcePile));
+		CardName cardFromTarget = this.playerHands.get(targetPlayer).insertCard(sourceCard, PileName.getIntegerValue(targetPile));
+		
+		//insert the "output" from the previous operation into the source
+		this.playerHands.get(sourcePlayer).insertCard(cardFromTarget, PileName.getIntegerValue(sourcePile));
+		//discard the output from the last operation
 	}
 
 	/**
@@ -108,10 +127,14 @@ public class GameObject {
 	 */
 	public GameState generateCurrentGameState()
 	{
-		//Default to returning zeros for the current scores
-		int defaultScore = 0;
-		HashMap<String, CardName[]> handsCopy = this.deepCopyPlayerHands();
+		HashMap<String, Integer> currentScores = new HashMap<String,Integer>();
+		//compute the current scores for each player by calling the compute score method for each playerHandobject.
+		for(String name: this.playerNames)
+		{
+			currentScores.put(name, new Integer(this.playerHands.get(name).getScore()));
+		}
 		
+		HashMap<String, CardName[]> handsCopy = this.deepCopyHandsArray();
 		//get the top of the discard pile, handling the case with the discard pile is empty.
 		CardName topOfDiscard = null;
 		try
@@ -124,27 +147,20 @@ public class GameObject {
 		}
 		//Get the top of the deck
 		CardName topOfDeck = this.deck.peek();
-		
 		//create deep copy functionality for the player hands array and the hashmap of player names to hands
-		return new GameState(handsCopy, defaultScore, defaultScore, topOfDiscard, topOfDeck); 
+		return new GameState(handsCopy, currentScores, topOfDiscard, topOfDeck); 
 	}
 	
-	private HashMap<String, CardName[]> deepCopyPlayerHands()
+	private HashMap<String, CardName[]> deepCopyHandsArray()
 	{
 		HashMap<String, CardName[]> handsCopy = new HashMap<String, CardName[]>();
 		
-		for(String player: this.playerNames)
+		for(String name: this.playerNames)
 		{
-			//Create a new Hand array
-			CardName[] newHand = new CardName[NUM_CARDS_PER_HAND];
-			//Copy the hand array
-			System.arraycopy(this.playerHands.get(player), 0, newHand, 0, NUM_CARDS_PER_HAND);
-			//Add that hand array to the new hashmap.
-			handsCopy.put(player, newHand);
+			CardName[] newHand = this.playerHands.get(name).getDeepCopyHand();
+			handsCopy.put(name, newHand);
 		}
-		
 		return handsCopy;
-		
 	}
 	
 	/**
@@ -158,45 +174,26 @@ public class GameObject {
 	private void updatePlayerHand(String targetPlayerName, PileName targetPileName, CardName inputCard)
 	{
 		//Get the pertinent player's hand
-		CardName[] hand = this.playerHands.get(targetPlayerName);
-		//Switch on the specified pileName, executing the updateDiscardAndHand method for the 
-		//appropriate index
-		switch(targetPileName)
-		{
-		case ZERO:
-			updateDiscardAndHand(hand, 0, inputCard);
-			break;
-		case ONE:
-			updateDiscardAndHand(hand, 1, inputCard);
-			break;
-		case TWO:
-			updateDiscardAndHand(hand, 2, inputCard);
-			break;
-		case THREE:
-			updateDiscardAndHand(hand, 3, inputCard);
-			break;
-		case DECK:
-			//Do nothing
-			break;
-		case DISCARD:
-			//Do Nothing
-			break;
-		default:
-			break;
-		}
+		PlayerHand hand = this.playerHands.get(targetPlayerName);
+
+		insertAndDiscard(hand, inputCard, PileName.getIntegerValue(targetPileName));
 	}
 	
 	/**
-	 * updateDiscardAndHand inserts the inputCard CardName into the specified index of the hand CardName[] array, 
+	 * insertAndDiscard inserts the inputCard CardName into the specified index of the hand CardName[] array, 
 	 * and pushes the old value onto the discard stack. 
 	 * @param hand
 	 * @param index
 	 * @param inputCard
 	 */
-	private void updateDiscardAndHand(CardName[] hand, int index, CardName inputCard)
+	private void insertAndDiscard(PlayerHand hand, CardName inputCard, int index)
 	{
-		this.discard.push(hand[index]);
-		hand[index] = inputCard;
+		//Use the insertCardMethod to insert a card into the hand and store the old cardname
+		//in the cardFromHand variable.
+		CardName cardFromHand = hand.insertCard(inputCard, index);
+		
+		//Push the card from the hand onto the discardpile
+		this.discard.push(cardFromHand);
 	}
 	
 	/**
@@ -205,24 +202,22 @@ public class GameObject {
 	 * "disappear" at this stage, if they are drawn. 
 	 * @return
 	 */
-	private CardName[] generatePlayerHand()
+	private PlayerHand generatePlayerHand()
 	{
 		//generate a new array to be filled.
 		CardName[] hand = new CardName[NUM_CARDS_PER_HAND];
 		//Fill the hand with NUM_CARDS_PER_HAND cards
 		
 		for(int i = 0; i < NUM_CARDS_PER_HAND; i++)
-		{	//make sure that the card is not a powerCard, and if not, add it to the hand at position "i". 
+		{	//make sure that the card is not a powerCard, and if not, add it to the hand at index "i". 
 			while(deck.peek() == CardName.DRAW_TWO || deck.peek() == CardName.SWAP || deck.peek() == CardName.PEEK)
 			{
 				deck.pop();
 			}
 			hand[i] = deck.pop();
 		}
-		return hand;
+		return new PlayerHand(hand);
 	}
-	
-
 	
 	/**
 	 * generateShuffledDeck returns a full, randomly shuffled AbstractQueue of CardNames
@@ -279,6 +274,67 @@ public class GameObject {
 		}
 		
 		return orderedDeck;
+	}
+	
+	/**
+	 * The private inner class playerHand represents a single player's hand of four cards. 
+	 * The methods specify inserting and removing cards from the hand. 
+	 * @author Ian
+	 *
+	 */
+	private class PlayerHand
+	{
+		private CardName[] hand;
+		
+		private PlayerHand(CardName[] inHand)
+		{
+			this.hand = inHand;
+		}
+		
+		private int getScore()
+		{
+			int total = 0;
+			for(CardName card: this.hand)
+			{
+				total += CardName.getNumericScore(card);
+			}
+			
+			return total;
+		}
+		
+		/**
+		 * InsertCard assigns inserts the "inputCard" value to the specified location in the hand, 
+		 * and returns the CardName value that was originally contained at that index. 
+		 * @param inputCard
+		 * @param index
+		 * @return
+		 */
+		private CardName insertCard(CardName inputCard, int index)
+		{
+			CardName outputCard = this.hand[index];
+			this.hand[index] = inputCard;
+			
+			return outputCard;
+		}
+		
+		/**
+		 * getHand returns a copy of the cardname[] which describes the contents of the player's hand. 
+		 * @return
+		 */
+		private CardName[] getDeepCopyHand()
+		{
+			CardName[] copyOfHand = new CardName[NUM_CARDS_PER_HAND];
+			
+			System.arraycopy(hand, 0, copyOfHand, 0, NUM_CARDS_PER_HAND);
+			
+			return copyOfHand;
+		}
+		
+		private CardName getCardAtIndex(int index)
+		{
+			return this.hand[index];
+		}
+		
 	}
 	
 }

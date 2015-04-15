@@ -1,7 +1,10 @@
 package utilityObjects;
 
+import java.util.HashMap;
+
 import org.junit.Before;
 import org.junit.Test;
+
 
 
 import static org.junit.Assert.*;
@@ -66,6 +69,62 @@ public class GameObjectTest extends TestCase{
 		CardName cardToTest = billhand[3];
 		
 		assertTrue("Unexpected card found in player's hand while attempting draw operation from deck.", cardToTest ==topOfDiscard);
+	}
+	
+	/**
+	 * TestSwapOperation performs a simple swap between players hands, and tests to ensure that the cards
+	 * in the players hands within the game state match the expected values. 
+	 */
+	@Test
+	public void testSwapOperation()
+	{	
+		String sourcePlayer = "Steve";
+		PileName sourcePile = PileName.ONE;
+		String targetPlayer = "Bill";
+		PileName targetPile = PileName.ONE;
+		
+		//generate a game object
+		GameObject game = new GameObject(GameType.ROUNDS, "Steve", "Bill", "Fred");
+		//generate an action object specifying a swap action target Steve's hand at position one, 
+		//and bill's hand at position one. 
+		Action swapAction = new Action(ActionName.SWAP, sourcePile, targetPile, sourcePlayer, targetPlayer, null);
+		//get the current gamestate and get the id's of the source and target cards of our action.
+		GameState originalGameState = game.generateCurrentGameState();
+		
+		CardName sourceCard = originalGameState.getPlayerHands().get(sourcePlayer)[PileName.getIntegerValue(sourcePile)];
+		CardName targetCard = originalGameState.getPlayerHands().get(targetPlayer)[PileName.getIntegerValue(targetPile)];
+		
+		//Perform the action
+		GameState alteredGameState = game.action(swapAction);
+		//recover the new cards from the current gamestates
+		CardName sourcePlayersNewCard = alteredGameState.getPlayerHands().get(sourcePlayer)[PileName.getIntegerValue(sourcePile)];
+		CardName targetPlayersNewCard = alteredGameState.getPlayerHands().get(targetPlayer)[PileName.getIntegerValue(targetPile)];
+		
+		assertTrue("Swap operation did not perform as expected", sourceCard == targetPlayersNewCard && targetCard == sourcePlayersNewCard);
+		
+	}
+	
+	@Test
+	public void testScoreGeneration()
+	{
+		String[] players = new String[] {"Steve", "Bill", "Fred"};
+		GameObject game = new GameObject(GameType.ROUNDS, players);
+		GameState state = game.generateCurrentGameState();
+				
+		HashMap<String, Integer> scores = state.getRoundScores();
+		
+		for(String name: players)
+		{
+			int total = 0;
+			CardName[] hand = state.getPlayerHands().get(name);
+			for(CardName card: hand)
+			{
+				total += CardName.getNumericScore(card);
+			}
+			
+			assertTrue("PlayerHand object computed unexpected score value for hand.", total == scores.get(name));
+		}
+		
 	}
 	
 	

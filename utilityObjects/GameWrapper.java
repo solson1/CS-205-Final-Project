@@ -5,11 +5,11 @@ import java.util.LinkedList;
 
 import databaseConnections.DatabaseConnector;
 
-public class GameWrapper implements Wrapper {
+public class GameWrapper {
 	
 	private LinkedList<AIDummy> aiPlayerList;
 	private GameType type;
-	private Game game;
+	private GameObject game;
 	private String playerID;
 	
 	public GameWrapper()
@@ -17,9 +17,9 @@ public class GameWrapper implements Wrapper {
 		//Initialize default values
 		this.playerID = "DefaultPlayer";
 		//Perform the database initialization step, encased in a try/catch block
-		
-		
+		DatabaseConnector.initializeDatabase();
 	}
+	
 	//--------------------------------------------------------------------
 	//DATABASE METHODS----------------------------------------------------
 	//--------------------------------------------------------------------
@@ -37,13 +37,10 @@ public class GameWrapper implements Wrapper {
 		for(String profile:existingProfiles)
 		{
 			if(profile.equalsIgnoreCase(playerName))
-			{
 				found = true;
-			}
 		}
 		if(found == false)
 			DatabaseConnector.createProfile(playerName);
-			
 		this.playerID = playerName;
 	}
 	
@@ -109,14 +106,14 @@ public class GameWrapper implements Wrapper {
 	 * @param type
 	 * @return
 	 */
-	public GameState startNewGame(GameType type, int numPlayers)
+	public GameState startNewGame(GameType type, int numPlayers, String[] players)
 	{	
 		//first, generate and populate the list of AI players;
 		this.aiPlayerList = this.generateListOfAI(numPlayers, type);
 		//next, generate a new game object
-		this.game = new GameObjectDummy(numPlayers, type);
+		this.game = new GameObject(type, players);
 		//finally, return that game
-		return this.game.getCurrentState();
+		return this.game.generateCurrentGameState();
 	}
 	
 	/**
@@ -137,7 +134,7 @@ public class GameWrapper implements Wrapper {
 		//Create the list of resulting states
 		LinkedList<GameState> states = new LinkedList<GameState>();
 		//Get the current state in order to feed it to the AI's in sequence
-		GameState current = this.game.getCurrentState();
+		GameState current = this.game.generateCurrentGameState();
 		for(AIDummy ai: this.aiPlayerList)
 		{
 			//Give the AI the current state and store the resulting action object in the "action" variable
