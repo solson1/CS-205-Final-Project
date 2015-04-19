@@ -1,3 +1,9 @@
+/**
+ * Ian Foertsch
+ * CS205 Semester Project
+ * Ratatat cat game
+ */
+
 package utilityObjects;
 
 import java.util.AbstractQueue;
@@ -8,6 +14,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
+/**
+ * The GameObject contains all of the game logic associated with the Ratatat game
+ * @author Ian 
+ *
+ */
 public class GameObject {
 
 	//Class Parameters

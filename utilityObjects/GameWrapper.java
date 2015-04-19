@@ -92,6 +92,11 @@ public class GameWrapper {
 	{
 		DatabaseConnector.updatePlayerProfile(playerName, gamesPlayed, roundsWon, roundsLost);
 	}	
+	
+	public void deleteProfile(String userName)
+	{
+		DatabaseConnector.deleteProfileAndSavedGames(userName);
+	}
 	//--------------------------------------------------------------------
 	//END DATABASE METHODS----------------------------------------------------
 	//--------------------------------------------------------------------
@@ -106,12 +111,13 @@ public class GameWrapper {
 	 * @param type
 	 * @return
 	 */
-	public GameState startNewGame(GameType type, int numPlayers, String[] players)
+	public GameState startNewGame(GameType type, String[] players)
 	{	
-		//first, generate and populate the list of AI players;
-		this.aiPlayerList = this.generateListOfAI(numPlayers, type);
 		//next, generate a new game object
 		this.game = new GameObject(type, players);
+		//first, generate and populate the list of AI players;
+		this.aiPlayerList = this.generateListOfAI(players, this.game.generateCurrentGameState());
+		
 		//finally, return that game
 		return this.game.generateCurrentGameState();
 	}
@@ -147,27 +153,26 @@ public class GameWrapper {
 			//set the 'current' state to newState
 			current = newState;
 		}
-		
 		return states;
 	}
 	
 	
 	/**
-	 * generateListofAi creates and returns a linked list of AI player objects The parameter arguement numPlayers describes the GLOBAL 
-	 * number of players, not the number of AI players. The number of AI players to be produced and returned is = numPlayers - 1 
-	 * with the - 1 representing the human player. This is included as an argument because the AI players need to know both how many players
-	 * there are total, as well as the method needing to know how many to generate.
+	 * generateListofAi creates and returns a linked list of AI player objects. The method requires
+	 * an array describing all of the player names (the first entry on the list is assumed to be the 
+	 * human player, AI objects are created for all of the following strings), and a current GameState
+	 * object describing the beginning of play.
 	 * @param numPlayers
 	 * @return
 	 */
-	private LinkedList<AIDummy> generateListOfAI(int numPlayers, GameType type)
+	private LinkedList<AIDummy> generateListOfAI(String[] playerNames, GameState state)
 	{
+		int numPlayers = playerNames.length;
 		LinkedList<AIDummy> AIPlayers = new LinkedList<AIDummy>();
-		for(int i = 0; i < numPlayers - 1; i++)
+		for(int i = 1; i < numPlayers; i++)
 		{
-			AIPlayers.add(new AIDummy(numPlayers, type));
+			AIPlayers.add(new AIDummy(state, playerNames[i], numPlayers));
 		}
-		
 		return AIPlayers;
 	}
 

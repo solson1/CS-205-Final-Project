@@ -11,46 +11,46 @@ import java.util.LinkedList;
 
 public class DatabaseConnector {
 	
-	public static final String URL = "jdbc:mysql://localhost/ratatat";
-	public static final String USER = "gamer";
-	public static final String PASSWORD = "game";
-	public static final String DRIVER_CLASS = "com.mysql.jdbc.Driver";
+	private static final String URL = "jdbc:mysql://localhost/ratatat";
+	private static final String USER = "gamer";
+	private static final String PASSWORD = "game";
+	private static final String DRIVER_CLASS = "com.mysql.jdbc.Driver";
 	
 	
 	
 	//NOTE RE: DATABASE_CREATION_QUERY: the saved game table is left without any tables describing the save game 
 	//status due to the incomplete nature of the gameObject at present. This feature will be implemented when the gameObject is finished.
-	public static final String TABLE_CREATION_PROFILES = "CREATE TABLE IF NOT EXISTS profiles (name varchar(20) not null, "
+	private static final String TABLE_CREATION_PROFILES = "CREATE TABLE IF NOT EXISTS profiles (name varchar(20) not null, "
 			+ "games_played int, rounds_won int, rounds_lost int, PRIMARY KEY (name));";
 	
-	public static final String TABLE_CREATION_SAVED_GAMES = "CREATE TABLE IF NOT EXISTS saved_games "
+	private static final String TABLE_CREATION_SAVED_GAMES = "CREATE TABLE IF NOT EXISTS saved_games "
 			+ "(player_name varchar(20) NOT NULL REFERENCES profiles, save_name varchar(20) NOT NULL, "
 			+ "PRIMARY KEY (player_name, save_name));";
 	
-	public static final String GET_PROFILES = "SELECT name FROM profiles;";
-	public static final String NAME_IDENTIFIER = "name";
+	private static final String GET_PROFILES = "SELECT name FROM profiles;";
+	private static final String NAME_IDENTIFIER = "name";
 	
-	public static final String CREATE_USER_QUERY_FIRST = "INSERT INTO PROFILES (NAME, GAMES_PLAYED, ROUNDS_WON, ROUNDS_LOST)"
+	private static final String CREATE_USER_QUERY_FIRST = "INSERT INTO PROFILES (NAME, GAMES_PLAYED, ROUNDS_WON, ROUNDS_LOST)"
 			+ " VALUES ('";
-	public static final String CREATE_USER_QUERY_LAST = "',0,0,0);";
+	private static final String CREATE_USER_QUERY_LAST = "',0,0,0);";
 	
-	public static final String SAVE_GAME_QUERY_FIRST = "INSERT INTO SAVED_GAMES (player_name, save_name) VALUES ('";
-	public static final String SAVE_GAME_QUERY_MIDDLE = "', '";
-	public static final String SAVE_GAME_QUERY_LAST = "');";
+	private static final String SAVE_GAME_QUERY_FIRST = "INSERT INTO SAVED_GAMES (player_name, save_name) VALUES ('";
+	private static final String SAVE_GAME_QUERY_MIDDLE = "', '";
+	private static final String SAVE_GAME_QUERY_LAST = "');";
 	
-	public static final String GET_SAVED_GAMES_FIRST = "SELECT save_name FROM saved_games WHERE player_name = '";
-	public static final String GET_SAVED_GAMES_LAST = "';";
-	public static final String SAVE_NAME_IDENTIFIER = "save_name";
+	private static final String GET_SAVED_GAMES_FIRST = "SELECT save_name FROM saved_games WHERE player_name = '";
+	private static final String GET_SAVED_GAMES_LAST = "';";
+	private static final String SAVE_NAME_IDENTIFIER = "save_name";
 	
-	public static final String UPDATE_PROFILE_INCREMENT_GAMESPLAYED_FIRST = "UPDATE profiles SET games_played = game_played + 1 "
+	private static final String UPDATE_PROFILE_INCREMENT_GAMESPLAYED_FIRST = "UPDATE profiles SET games_played = game_played + 1 "
 																			+ " WHERE name = '";
-	public static final String UPDATE_PROFILE_INCREMENT_GAMESPLAYED_LAST =  "';";
+	private static final String UPDATE_PROFILE_INCREMENT_GAMESPLAYED_LAST =  "';";
 	
-	public static final String GET_SCORES_FIRST = "SELECT games_played, rounds_won, rounds_lost FROM profiles WHERE name = '";
-	public static final String GET_SCORES_LAST = "';";
-	public static final String GAMES_PLAYED_IDENT = "games_played";
-	public static final String ROUNDS_WON_IDENT = "rounds_won";
-	public static final String ROUNDS_LOST_IDENT = "rounds_lost";
+	private static final String GET_SCORES_FIRST = "SELECT games_played, rounds_won, rounds_lost FROM profiles WHERE name = '";
+	private static final String GET_SCORES_LAST = "';";
+	private static final String GAMES_PLAYED_IDENT = "games_played";
+	private static final String ROUNDS_WON_IDENT = "rounds_won";
+	private static final String ROUNDS_LOST_IDENT = "rounds_lost";
 	
 	
 	
@@ -81,33 +81,33 @@ public class DatabaseConnector {
 	 */
 	public static void createProfile(String playerName)
 	{
-		Statement statement = null;
-		ResultSet results = null;
+		String query = CREATE_USER_QUERY_FIRST + playerName + CREATE_USER_QUERY_LAST;
+		executeNonReturningQuery(query);			
+	}
+	
+	
+	//DELETE_PROFILE_AND_SAVED_GAMES QUERY COMPONENTS
+	private static final String DELETE_PROFILE_ONE = "delete from profiles where name = '";
+	private static final String DELETE_PROFILE_TWO = "';";
+	private static final String DELETE_SAVED_GAMES_ONE = "delete from saved_games where player_name = '";
+	private static final String DELETE_SAVED_GAMES_TWO = "';"; 
+	
+	/**
+	 * deleteProfile removes the row containing the specified username from the database. It also 
+	 * removes all saved games with a username field equal to the specified input.
+	 * @param userName
+	 */
+	public static void deleteProfileAndSavedGames(String userName)
+	{
+		//Build the profile deletion Query
+		String profileDeletionQuery = DELETE_PROFILE_ONE + userName + DELETE_PROFILE_TWO;
+		//Execute the non-returning query on the profile deletion query
+		executeNonReturningQuery(profileDeletionQuery);
 		
-		//Enclosed within try block
-		try
-		{
-			Connection connection = createConnection(URL, USER, PASSWORD, DRIVER_CLASS);
-			
-			statement = connection.createStatement();
-			//Create the query by concatenating the first portion of the create user query form, the 
-			//player name and the last part of the create user query form.
-			String query = CREATE_USER_QUERY_FIRST + playerName + CREATE_USER_QUERY_LAST;
-			System.out.println(query);
-			statement.execute(query);
-			results = statement.getResultSet();
-			//Do we need to handle the results Here? I don't think so
-		}
-		catch(Exception e)
-		{
-			System.out.println(e.getMessage());
-		}
-		finally
-		{
-			closeResources(statement, results);
-			statement  = null;
-			results = null;
-		}
+		//build the delete saved games query
+		String saveGameDeletionQuery = DELETE_SAVED_GAMES_ONE + userName + DELETE_SAVED_GAMES_TWO;
+		//execute the non-returning query on the profile deletion query.
+		executeNonReturningQuery(saveGameDeletionQuery);
 	}
 	
 	/**
@@ -222,32 +222,32 @@ public class DatabaseConnector {
 	private static LinkedList<String> stringListReturningQuery(String query, String columnId)
 	{
 		//declare variables in order to close them within the finally block;
-				LinkedList<String> returnMe = new LinkedList<String>();
-				Statement statement = null;
-				ResultSet results = null;
-				try
-				{
-					Connection connection = createConnection(URL, USER, PASSWORD, DRIVER_CLASS);
-					
-					statement = connection.createStatement();
-					statement.execute(query);
-					results = statement.getResultSet();
-					while(results.next())
-					{
-						returnMe.add(results.getString(columnId));
-					}
-				}
-				catch(Exception e) //handle all errors
-				{
-					System.out.println(e.getMessage());
-				}
-				finally //close all resources, including the result set and connection
-				{
-					closeResources(statement, results);
-					statement = null;
-					results = null;
-				}
-				return returnMe;
+		LinkedList<String> returnMe = new LinkedList<String>();
+		Statement statement = null;
+		ResultSet results = null;
+		try
+		{
+			Connection connection = createConnection(URL, USER, PASSWORD, DRIVER_CLASS);
+			
+			statement = connection.createStatement();
+			statement.execute(query);
+			results = statement.getResultSet();
+			while(results.next())
+			{
+				returnMe.add(results.getString(columnId));
+			}
+		}
+		catch(Exception e) //handle all errors
+		{
+			System.out.println(e.getMessage());
+		}
+		finally //close all resources, including the result set and connection
+		{
+			closeResources(statement, results);
+			statement = null;
+			results = null;
+		}
+		return returnMe;
 	}
 	
 	

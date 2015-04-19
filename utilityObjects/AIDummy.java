@@ -1,14 +1,17 @@
 package utilityObjects;
 
 public class AIDummy {
-	
+
+	private GameState state;
+	private String name;
 	private int numPlayers;
-	private GameType type;
 	
-	public AIDummy(int numPlayers, GameType type)
+	public AIDummy(GameState state, String myName, int numPlayers)
 	{
+		this.state = state;
+		this.name = myName;
 		this.numPlayers = numPlayers;
-		this.type = type;
+		
 	}
 	
 	public Action aiAction(GameState currentState)

@@ -114,7 +114,48 @@ public class DatabaseConnectorTest extends TestCase{
 				found = true;
 			}
 		}
-		
 		assertTrue(found);
 	}
+	
+	@Test
+	public void testProfileDeletion()
+	{
+		try
+		{
+			String userName = "testUserToDelete";
+			String saveName = "testSaveToDelete";
+			
+			DatabaseConnector.createProfile(userName);
+			DatabaseConnector.saveGame(userName, saveName);
+			
+			LinkedList<String> profileNames = DatabaseConnector.getProfiles();
+			LinkedList<String> savedNames = DatabaseConnector.getSavedGames(userName);
+			
+			assertTrue("Profiles does not contain Test user name following creation.",DatabaseConnectorTest.listContainsString(profileNames, userName));
+			assertTrue("savedGames does not contain test save during creation.",DatabaseConnectorTest.listContainsString(savedNames, saveName));
+
+			DatabaseConnector.deleteProfileAndSavedGames(userName);
+			
+			profileNames = DatabaseConnector.getProfiles();
+			savedNames = DatabaseConnector.getSavedGames(saveName);
+			assertFalse("Failed to delete " +userName + " during profile deletion", profileNames.contains(userName));
+			assertFalse("Failed to delete " + saveName + " during saved game deletion", savedNames.contains(saveName));
+		}
+		catch(Exception e)
+		{
+			fail(e.getMessage());
+		}	
+	}
+
+ 	private static boolean listContainsString(LinkedList<String> listToTest, String testValue)
+	{
+		for(String value: listToTest)
+		{
+			if(value.equalsIgnoreCase(testValue))
+				return true;
+		}
+		return false;
+	}
+ 
+	
 }
