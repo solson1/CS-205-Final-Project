@@ -223,7 +223,7 @@ public class GameObject {
 		{	//make sure that the card is not a powerCard, and if not, add it to the hand at index "i". 
 			while(deck.peek() == CardName.DRAW_TWO || deck.peek() == CardName.SWAP || deck.peek() == CardName.PEEK)
 			{
-				deck.pop();
+				this.discard.push(deck.pop());
 			}
 			hand[i] = deck.pop();
 		}

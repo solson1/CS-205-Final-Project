@@ -145,6 +145,14 @@ public class GameWrapper {
 		{
 			//Give the AI the current state and store the resulting action object in the "action" variable
 			Action action = ai.aiAction(current);
+			
+			//Put conditional tests here to determine if the operation is a draw two operation. 
+			if(action.getActionName() == ActionName.DRAW_TWO)
+			{
+				//put the drawTwo card on the discard pile, and execute two other actions conditionally 
+				//on the SAME AI Object
+			}
+			
 			//execute the action by calling the game's action method, storing the resulting gamestate in "newState"
 			GameState newState = this.game.action(action);
 			
