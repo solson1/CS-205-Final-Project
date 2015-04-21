@@ -44,6 +44,12 @@ public enum CardName {
 			return 8;
 		case NINE:
 			return 9;
+		case DRAW_TWO:
+			return 10;
+		case PEEK:
+			return 11;
+		case SWAP:
+			return 12; 
 		default:
 			return 0;
 		}
