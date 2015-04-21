@@ -1,23 +1,12 @@
-Get rid of the cats and go for the cats! In Rat-a-Tat Cat, less is always better, and
-you want to go out with the lowest score. Can you remember the numbers on other 
-players' cards? Can you keep a poker face, but notice when another player looks 
-really  pleased? Sharpen your memory and your timing, and have fun with the cool 
-cats and bad rats of Rat-a-Tat Cat.
+Get rid of the cats and go for the cats! In Rat-a-Tat Cat, less is always better, and you want to go out with the lowest score. Can you remember the numbers on other players' cards? Can you keep a poker face, but notice when another player looks really  pleased? Sharpen your memory and your timing, and have fun with the cool cats and bad rats of Rat-a-Tat Cat.
 
 Game Play
 
-Every player is dealt four cards and the rest is put in the middle as the "Draw" pile. 
-One card from the draw pile is flipped over an put into the "Discard" pile also in the 
-center. If that card is a Power card, is it placed back into the draw and a new card 
-is drawn.
+Every player is dealt four cards and the rest is put in the middle as the "Draw" pile. One card from the draw pile is flipped over an put into the "Discard" pile also in the center. If that card is a Power card, is it placed back into the draw and a new card is drawn.
 
-At the start of the game, players peek at the two outer cards, then face them down
- again. If these cards are power cards, the player can keep them but their powers 
-are not used. The game progresses by player turn in a clockwise direction. During 
-each  turn the user can:
+At the start of the game, players peek at the two outer cards, then face them down again. If these cards are power cards, the player can keep them but their powers are not used. The game progresses by player turn in a clockwise direction. During each  turn the user can:
 
-1. Draw a card from the the discard pile. This card MUST  be used to replace 
-one of their cards. The replaced card then goes to the discard pile face up.
+1. Draw a card from the the discard pile. This card MUST  be used to replace one of their cards. The replaced card then goes to the discard pile face up.
 
 ~OR~
 
@@ -28,43 +17,27 @@ one of their cards. The replaced card then goes to the discard pile face up.
 
 Power Cards
 
-Power cards have special powers that help you progress in the game. Their power
-can only be activated if they are drawn from the draw pile. Immediately after 
-using it, it goes into the discard pile. There are three kinds of power cards:
+Power cards have special powers that help you progress in the game. Their power can only be activated if they are drawn from the draw pile. Immediately after using it, it goes into the discard pile. There are three kinds of power cards:
 
 Peek:
 
-When you draw a Peek card, show it and then peek at any one of your four 
-cards in hand. Now you will know what you have, or you can refresh your
-memory if you have forgotten what you have. Your turn is over once you 
-discard the Peek card.
+When you draw a Peek card, show it and then peek at any one of your four cards in hand. Now you will know what you have, or you can refresh your memory if you have forgotten what you have. Your turn is over once you discard the Peek card.
 
 Swap:
 
-When you draw a Swap card, show it and then discard it. You then have the 
-power to trade any single card with another player (swapping is optional).
-The tricky part is that you can't look at the cards your swapping. After the 
-swap your turn is over.
+When you draw a Swap card, show it and then discard it. You then have the power to trade any single card with another player (swapping is optional). The tricky part is that you can't look at the cards your swapping. After the swap your turn is over.
 
 Draw 2:
 
-When you draw a Draw 2 card, show the card and then you may take two 
-more turns. First you draw from the draw pile, and decide whether to use it 
-and forefeit the second draw OR discard the first card and draw again which 
-can be used or discarded. If any of the newly drawn cards is another Draw 2, 
-the sequence starts over again.
+When you draw a Draw 2 card, show the card and then you may take two more turns. First you draw from the draw pile, and decide whether to use it and forefeit the second draw OR discard the first card and draw again which can be used or discarded. If any of the newly drawn cards is another Draw 2, the sequence starts over again.
 
 Ending the Round
 
-When the player thinks they have the lowest score of the round, they may call 
-"Rat-a-Tat Cat." Once called, all players have one more turn drawing. All players 
-must turn their cards face up. Any power cards will need to be replaced from cards 
-in the draw pile so that all cards are numbers.
+When the player thinks they have the lowest score of the round, they may call "Rat-a-Tat Cat." Once called, all players have one more turn drawing. All players must turn their cards face up. Any power cards will need to be replaced from cards in the draw pile so that all cards are numbers.
 
 Scoring
 
-Players add all point values of the cards which is the score for the round. The goal 
-is to get the lowest score possible.
+Players add all point values of the cards which is the score for the round. The goal is to get the lowest score possible.
 
 Next Round
 
@@ -72,8 +45,7 @@ All cards are shuffled and redistributed for another round of the game.
 
 Ending the Game
 
-The player with the total lowest score is the winner. The game can be played three 
-ways:
+The player with the total lowest score is the winner. The game can be played three ways:
 
 1. By rounds
 2. By time limit
