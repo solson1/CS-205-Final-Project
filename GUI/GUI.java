@@ -1,9 +1,9 @@
-package GUI;
+//package GUI;
 
 import javax.swing.*;
 import javax.swing.event.*;
 import java.awt.event.*;
-import java.util.Scanner;
+import java.util.*;
 import java.io.*;
 import java.awt.*;
 import javax.swing.Timer;
@@ -25,23 +25,24 @@ public class GUI{
 
 	private GameWrapper gameWrapper;
 	private GameState gameState;
+	private String[] players;
 
 	public static void main(String[] args) {
 		GUI game = new GUI();
 		game.start();
 	}
 	public void start()  { 
-		gameWrapper = new GameWrapper();
-		new ParameterWindow();
-		// try {
-		// Thread.sleep(4000);
-		// new InstructionWindow(); 
-		// } catch (FileNotFoundException e) {
-		// 	//
-		//  } 
-		//  catch (InterruptedException e) {
-		//  	//
-		//  }
+		 gameWrapper = new GameWrapper();
+		//new ParameterWindow();
+		try {
+		Thread.sleep(4000);
+		new InstructionWindow(); 
+		} catch (FileNotFoundException e) {
+			//
+		 } 
+		 catch (InterruptedException e) {
+		 	//
+		 }
 	}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -402,7 +403,7 @@ public class PlayerListWindow extends JFrame {
 				usernameNew = JOptionPane.showInputDialog("Please enter a username:");
 
 				// ADD NEW USER
-///				gameWrapper.createProfile(username);
+				gameWrapper.createProfile(usernameNew);
 			}
 			else if (e.getSource() == statsButton) {
 				if (nameSelection == null) {
@@ -412,8 +413,8 @@ public class PlayerListWindow extends JFrame {
 				else {
 					// VIEW STATISTICS OF USER
 					// Need to read input of the value highlighted
-					// IN REGARDS TO VARIABLE selection, LOAD STATS WINDOW
-					// This is where you instantiate the StatWindow
+					new StatWindow();
+					setVisible(false);
 				}
 			}
 		} // End actionPerformed
@@ -563,7 +564,7 @@ public class ParameterWindow extends JFrame {
 	private int cpuPlayers;
 
 	private int numPlayers;
-	private String[] players;
+	//private String[] players;
 
 	private GameType type;
 
@@ -803,6 +804,7 @@ public class ParameterWindow extends JFrame {
 				if ((type == GameType.ROUNDS || type == GameType.ELIMINATION || type == GameType.TIMED_GAME) && (cpuPlayers == 1 || cpuPlayers == 2 || cpuPlayers == 3)) {
 					// Create a new game and initialize the gameState
 					gameState = gameWrapper.startNewGame(type, players);
+					
 
 					// Go to gameboard
 					new Gameboard();
@@ -816,48 +818,84 @@ public class ParameterWindow extends JFrame {
 	} // End PlayButtonListener
 } // End ParameterWindow
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// public class StatWindow extends JFrame {
-// 	private final int WINDOW_WIDTH = 700;
-// 	private final int WINDOW_LENGTH = 550;
+public class StatWindow extends JFrame {
 
-// 	//private JLabel gamesPlayed, gamesWon, gamesLost;
+	private JLabel statisticsLogo, winLabel, lossLabel, playedLabel;
+	private JPanel panel;
 
-// 	public StatWindow() {
+	private final int WINDOW_WIDTH = 700;
+	private final int WINDOW_LENGTH = 550;
 
-// 		// Set title
-// 		setTitle("Statistics Window");
+	//private JLabel gamesPlayed, gamesWon, gamesLost;
 
-// 		// Set window size
-// 		setSize(WINDOW_WIDTH, WINDOW_LENGTH);
+	public StatWindow() {
 
-// 		// Center window
-// 		setLocationRelativeTo(null);
+		// Set title
+		setTitle("Statistics Window");
 
-// 		// Specify an action for close "x" button
-// 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		// Set window size
+		setSize(WINDOW_WIDTH, WINDOW_LENGTH);
 
-// 		// Create single panel object that takes up the frame.
-// 		panel = new JPanel();
+		// Center window
+		setLocationRelativeTo(null);
 
-// 		createContent();
-// 		buildLayout();
+		// Specify an action for close "x" button
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-// 		// Add panel to frame
-// 		add(panel);
+		// Create single panel object that takes up the frame.
+		panel = new JPanel();
 
-// 		// Set to visible.
-// 		setVisible(true);
+		createLogo();
+		createContent();
+		buildLayout();
 
-// 	}
+		// Add panel to frame
+		add(panel);
 
-// 	public void createContent() {
-		
-// 	}
+		// Set to visible.
+		setVisible(true);
 
-// 	public void buildLayout() {
+	}
 
-// 	}
-// } // End StatWindow
+	public void createLogo() {
+		statisticsLogo = new JLabel(new ImageIcon("images/statistics.png"));
+	}
+
+	public void createContent() {
+
+		// Get statistics of the username from the database
+		// String stats = 
+		winLabel = new JLabel("WINS: ");
+		lossLabel = new JLabel("LOSS: ");
+		playedLabel = new JLabel("Games Played: ");
+	}
+
+	public void buildLayout() {
+		GroupLayout layout = new GroupLayout(panel);
+		panel.setLayout(layout);
+		layout.setAutoCreateGaps(true);
+		layout.setAutoCreateContainerGaps(true);
+
+		layout.setHorizontalGroup(
+			layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+					.addGap(700,700,700)
+					.addComponent(statisticsLogo)
+					.addComponent(winLabel)
+					.addComponent(lossLabel)
+					.addComponent(playedLabel)
+		);
+
+		layout.setVerticalGroup(
+			layout.createSequentialGroup()
+				.addGap(70,70,70)
+				.addComponent(statisticsLogo)
+				.addGap(40,40,40)
+				.addComponent(winLabel)
+				.addComponent(lossLabel)
+				.addComponent(playedLabel)
+		);
+	}
+} // End StatWindow
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 public class HelpWindow extends JFrame {
 
@@ -993,6 +1031,8 @@ public class Gameboard extends JFrame {
 						ai21Image, ai22Image, ai23Image, ai24Image, 
 						ai31Image, ai32Image, ai33Image, ai34Image;
 	private Timer outerPeekTimer;
+	private Boolean actionActive = false;
+	private PileName targetCard;
 
 	// Constants -- WINDOW SIZE
 	private final int WINDOW_WIDTH = 1080;
@@ -1481,6 +1521,9 @@ public class Gameboard extends JFrame {
 		public void actionPerformed(ActionEvent e) {
 
 			if (e.getSource() == dealButton) {
+				// Set actionActive to true
+				actionActive = true;
+
 				// send to wrapper to shuffle and distribute the cards
 				// ONCE THE DECK IS DEALT, you need to hide the deal button until the next round...
 				gameMessages.setText("Peek at your outer two cards. You only have 5 seconds!");
@@ -1488,13 +1531,24 @@ public class Gameboard extends JFrame {
 				cardsFaceDown();
 
 				// Reveal the top of the discard
-				// String topOfDeckString = "images/"+gameState.getFaceUpDiscard().toString()+".png";			
-				// discardDeckImage = new ImageIcon(topOfDeckString);
-				// discardDeck.setIcon(discardDeckImage);
+				String topOfDeckString = "images/"+gameState.getFaceUpDiscard().toString()+".png";
+				discardDeckImage = new ImageIcon(topOfDeckString);
+				discardDeck.setIcon(discardDeckImage);
 
 				// Revealing outer two
-				user1Image = new ImageIcon("images/1.png"); ///////////////////////////
-				user4Image = new ImageIcon("images/1.png"); ///////////////////////////
+				HashMap<String, CardName[]> playerHands = gameState.getPlayerHands();
+
+				CardName x1 = playerHands.get(players[0])[0];
+				CardName x4 = playerHands.get(players[0])[3];
+
+				//Integer i = new Integer();
+				String poop = Integer.toString(CardName.getNumericScore(x1));
+				String poopie = Integer.toString(CardName.getNumericScore(x4));
+ 
+				String user1ImageString = "images/"+poop+".png";
+				String user4ImageString = "images/"+poopie+".png";
+				user1Image = new ImageIcon(user1ImageString); ///////////////////////////
+				user4Image = new ImageIcon(user4ImageString); ///////////////////////////
 				user1.setIcon(user1Image);
 				user4.setIcon(user4Image);			
 
@@ -1541,40 +1595,78 @@ public class Gameboard extends JFrame {
 		public void actionPerformed(ActionEvent e) {
 		
 			if (e.getSource() == drawDeck) {
-				// Display the selected card from top of the deck in the selectedCardDraw slot.
+				if (actionActive == false) {
+					actionActive = true;
+					// Display instructions for what to do after selecting from discard
+					gameMessages.setText("Now choose a card from your hand to replace it with.");
 
-				// If that card is a regular card
-					// Replace
-					// Discard
-				// If that card is a power card
-					// Display the power card buttons
+					// Display the selected card from top of the deck in the selectedCardDraw slot.
+					int c = CardName.getNumericScore(gameState.getTopOfDeck());
+					String topOfDeckString = "images/"+Integer.toString(c)+".png";
+					drawDeckImage = new ImageIcon(topOfDeckString);
+					selectedCardDraw.setIcon(drawDeckImage);
+
+					if (CardName.getNumericScore(gameState.getTopOfDeck()) != 0 && gameState.getTopOfDeck() != CardName.ZERO) {
+						// If that card is a regular card, display buttons for what to do with it
+						// Replace & Discard
+						replaceCardButton.setVisible(true);
+						discardCardButton.setVisible(true);
+					}
+					else {
+						// If that card is a power card, display buttons for what to do with it
+						// Display the power card buttons
+						replaceCardButton.setVisible(true);
+						discardCardButton.setVisible(true);
+						useCardButton.setVisible(true);
+					}
+				}
+				else if (actionActive == true) {
+					gameMessages.setText("ERROR with drawDeck drawing.");
+				}
+				else {
+					// ERRORS
+				}
 			}
 			else if (e.getSource() == discardDeck) {
-				// Display the selected card from the top of the deck in the selectedCardDiscard.
-//				selectedCardDiscard.setIcon(discardDeckImage);
-				// String topOfDeckString = "images/"+gameState.getFaceUpDiscard().toString()+".png";			
-				// discardDeckImage = new ImageIcon(topOfDeckString);
-				// selectedCardDiscard.setIcon(new ImageIcon(discardDeckImage));
+				if (actionActive == false) {
+					actionActive = true;
+					// Display the selected card from the top of the deck in the selectedCardDiscard.
+					// String topOfDeckString = "images/"+gameState.getFaceUpDiscard().toString()+".png";			
+					// discardDeckImage = new ImageIcon(topOfDeckString);
+					// selectedCardDiscard.setIcon(new ImageIcon(discardDeckImage));
+					selectedCardDiscard.setIcon(discardDeckImage);
 
-				// Display instructions for what to do after selecting from discard
-				gameMessages.setText("Now choose a card from your hand to replace it with.");
+					// Display instructions for what to do after selecting from discard
+					gameMessages.setText("Now choose a card from your hand to replace it with.");
 
-				// user then selects card from hand
-				//selectedCard = 
+					// user then selects card from hand
+					//selectedCard = 
+				}
+				else if (actionActive == true) {
+					gameMessages.setText("ERROR with discardDeck drawing.");
+				}
+				else {
+					//Errors
+				}
 			}
 			else if (e.getSource() == user1) {
 				// If replacing draw or discard is active
-					//
+					targetCard = PileName.ZERO;
+
 				// If SWAP is active
 					// If AIselectedCard is not null
 						// store card into USERselectedCard
 						// SEND TO GAMEWRAPPER
+
 				// If PEEK is active
 					// allow user to view it ... 
 					// timer shit again for setting back to back up
 					// set to face up
 			}
 			else if (e.getSource() == user2) {
+				// If replacing draw or discard is active
+					targetCard = PileName.ONE;
+
 				// If SWAP is active
 					// If AIselectedCard is not null
 						// store card into USERselectedCard
@@ -1585,6 +1677,9 @@ public class Gameboard extends JFrame {
 					// set to face up
 			}
 			else if (e.getSource() == user3) {
+				// If replacing draw or discard is active
+					targetCard = PileName.TWO;
+
 				// If SWAP is active
 					// If AIselectedCard is not null
 						// store card into USERselectedCard
@@ -1595,6 +1690,9 @@ public class Gameboard extends JFrame {
 					// set to face up
 			}
 			else if (e.getSource() == user4) {
+				// If replacing draw or discard is active
+					targetCard = PileName.THREE;
+
 				// If SWAP is active
 					// If AIselectedCard is not null
 						// store card into USERselectedCard
@@ -1606,42 +1704,67 @@ public class Gameboard extends JFrame {
 
 			}
 			else if (e.getSource() == ai11) {
+				// If replacing draw or discard is active
+					targetCard = PileName.ZERO;
+
 				// If SWAP is active
 					// allow user to select this card, store into a AIselectedCard variable
 				// If SWAP is inactive
 					// POPUP ERROR SAYING NOT OK
 			}
 			else if (e.getSource() == ai12) {
+				// If replacing draw or discard is active
+					targetCard = PileName.ONE;
 
 			}
 			else if (e.getSource() == ai13) {
+				// If replacing draw or discard is active
+					targetCard = PileName.TWO;
 
 			}
 			else if (e.getSource() == ai14) {
+				// If replacing draw or discard is active
+					targetCard = PileName.THREE;
 
 			}
 			else if (e.getSource() == ai21) {
+				// If replacing draw or discard is active
+					targetCard = PileName.ZERO;
 
 			}
 			else if (e.getSource() == ai22) {
+				// If replacing draw or discard is active
+					targetCard = PileName.ONE;
 
 			}
 			else if (e.getSource() == ai23) {
+				// If replacing draw or discard is active
+					targetCard = PileName.TWO;
 
 			}
 			else if (e.getSource() == ai24) {
+				// If replacing draw or discard is active
+					targetCard = PileName.THREE;
 
 			}
 			else if (e.getSource() == ai31) {
+				// If replacing draw or discard is active
+					targetCard = PileName.ZERO;
 
 			}
 			else if (e.getSource() == ai32) {
+				// If replacing draw or discard is active
+					targetCard = PileName.ONE;
 
 			}
 			else if (e.getSource() == ai33) {
+				// If replacing draw or discard is active
+					targetCard = PileName.TWO;
 
 			}
 			else if (e.getSource() == ai34) {
+				// If replacing draw or discard is active
+					targetCard = PileName.THREE;
 
 			}
 		} // End actionPerformed
@@ -1650,7 +1773,20 @@ public class Gameboard extends JFrame {
 	public class PowerButtonListener implements ActionListener {
 
 		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == useCardButton) {
+				// This button should only show up and be pressed if the card when drawn is identified to be a power card
+				// PERFORM THE POWER CARD ACTIONS HERE
+			}
+			else if (e.getSource() == discardCardButton) {
+				// Send the card to the discard pile
+				Action a = new Action(ActionName.DRAW, PileName.DECK, PileName.DISCARD, players[0], players[0], null);
+			}
+			else if (e.getSource() == replaceCardButton) {
+				// Send card to the player's hand -- replacing the card.
+				gameMessages.setText("Select a target card");
+				Action a = new Action(ActionName.DRAW, PileName.DECK, targetCard, players[0], players[0], null);
 
+			}
 		} // End actionPerformed
 	} // End PowerButtonListener
 
@@ -1670,7 +1806,8 @@ public class Gameboard extends JFrame {
 			// Change message
 			gameMessages.setText("Now choose from the either of the decks.");
 
-			// Take card from top of drawDeck for the first discardDeck card
+			// Set actionActive to false
+			actionActive = false;
 
 		} // End actionPerformed
 	} // End TimeListener
